@@ -1,0 +1,51 @@
+## LK 35 Persistence and Syncing
+
+### Problem
+
+Some data has to be stored in the LK35 App. This is mainly the users data,
+the URLs of the LED-controllers, the properties of the controllers, the 
+strips, the Favorite light settings, the grouping and the sites.
+
+This data has to be persisted and should be synced through all the devices of the
+user.
+
+Additionally the user may want to wish to share the information to some extent.
+Especially the URLs and the properties of the LED-controllers may be also useful
+to other members of the users family (at home) or for coworkers (in the office).
+
+The sharing should be easily achievable.
+
+
+### Constraints
+
+* The application is developed only for Apple platforms
+* I am not wanting to provide server services to the App users, syncing must thus be done by a publicly available service
+* LK35 is also intended to improve my Apple platform and Swift programming skills.
+
+
+### Assumptions
+
+The users of the App have downloaded at least the App from the App Store and thus have an Apple ID. As such, they are also automatically entitled to participate in iCloud services.
+
+
+### Considered Alternatives
+
+* A proprietary solution with a database on a server, which is run by myself
+This solution is not realized as I don't want to run a proprietary server with 24/7 availability requirements.
+
+* Another publicly available sync server (assuming that such a free service exists):
+This solution is not realized as it is currently not planned to support Android or Windows. If this would be the case, it may be considered to support a CloudKit storage without using CoreData. In this case it would be possible to support other platforms, which could access CloudKit through JavaScript.
+This migration from a CoreData CloudKit Store to an independent CloudKit storage can be realized easily later on. Currently the usage of CoreData is much easier regarding the persistence than creating an own persistence solution.
+
+
+
+### Decision
+
+The decision was taken to use a CoreData and CloudKit. CoreData (with an SQLite store) is used for persistence. SQLite as store type is used as it is the only store type which is supported by all of the platforms.
+
+CloudKit capability can be easily integrated, when all the data is stored through CoreData.
+
+The 'problem' with CoreData is, that it has good support for classes, but not such a good support for value types. Nevertheless in the present case many data, which is stored in CoreData represents real objects as LED Light Controllers. These controllers are unique objects with an identity and thus may also have an identity and hence be represented by objects instead of value types.
+
+The other types, which have value characteristic (as e.g. a light setting). Will also be stored in CoreData, but these will be value types. The coding / decoding methods to a CoreData custom type have thus to be provided.
+
